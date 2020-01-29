@@ -29,11 +29,11 @@ Hist <- rep(0, L^2*2 + 1)
 Hist_index <- 0
 ### Keep track of the estimation error epsilon(t) defined as in Equation (24)
 error <- rep(0, num_mc)
-### Initialize the momentum
+### Initialize the momentum.
 momentum <- rep(0, L^2*2 + 1)
 lattice <- matrix(1, nrow = L, ncol = L)
 energy_level <- 0
-### Last update
+### Last update index
 last_update_index <- rep(0, L^2*2 + 1)
 
 
