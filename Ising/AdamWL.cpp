@@ -55,7 +55,7 @@ List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector &
     interval = num_trial_moves + iter - last_update_index(proposed_energy_level);
     logdensity(proposed_energy_level) += learning_rate * sqrt(-momentum(proposed_energy_level)) * (1 - pow(sqrt(beta), interval)) * accum_beta;
     momentum(proposed_energy_level) *= pow(beta, interval);
-    last_update(proposed_energy_level) = num_trial_moves + iter;
+    last_update_index(proposed_energy_level) = num_trial_moves + iter;
     
     // Calculate the acceptance probability
     log_acceptance_prob = logdensity(current_energy_level) - logdensity(proposed_energy_level);
