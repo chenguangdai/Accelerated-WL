@@ -27,7 +27,7 @@ logdensity <- rep(0, L^2*2 + 1)
 ### Initialize the ground state. All spins are 1.
 lattice <- matrix(1, nrow = L, ncol = L)
 ### Initialize the energy level.
-energy_level <- 0)  
+energy_level <- 0
 ### Initialize the histogram.
 Hist <- rep(0, L^2*2 + 1)
 Hist_index <- 0
