@@ -30,7 +30,7 @@ logdensity <- rep(0, L^2 + 1)
 ### Initialize the histogram.
 Hist <- rep(0, L^2 + 1)
 Hist_index <- 0
-### Keep track of the estimation error epsilon(t) defined in Equation (24)
+### Keep track of the estimation error epsilon(t) defined as in Equation (24)
 error <- rep(0, num_mc)
 ### Initialize the momentum
 momentum <- rep(0, L^2 + 1)
