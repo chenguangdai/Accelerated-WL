@@ -43,7 +43,7 @@ for(iter in 1:num_mc){
   energy_level <- MC_result$energy_level
   Hist <- MC_result$Hist
   
-  ### Check the flatness criterion
+  ### Check the flatness criterion (1/t update)
   if(iter%%1000 == 0 && Hist_index == 0){
     Hist_min <- min(Hist[-empty_index])
     if(Hist_min > 0){
