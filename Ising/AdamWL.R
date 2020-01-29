@@ -56,29 +56,24 @@ for(iter in 1:num_mc){
       ### Adjust the modification factor and reset the histogram
       logf <- logf / 2
       Hist <- rep(0, L^2 + 1)
-      start_time <- c(start_time, Sys.time())
-      equilibration <- c(equilibration, iter)
     }
   }
-  
   if(iter >= 1000 & logf < 1/iter){Hist_index <- 1}
   if(Hist_index == 1){logf <- 1/iter}
   
-  ### Normalize the density
+  ### Normalize the density of states
   maxlw <- max(logdensity[-empty_index])
   logconst <- log(sum(exp(logdensity[-empty_index] - maxlw))) + maxlw
   logdensity[-empty_index] <- logdensity[-empty_index] - logconst
   
-  ### Calculate the error
-  # error[iter] <- sum(abs(1 - logdensity[-empty_index]/logdensity_truth[-empty_index]))/(N - 1)
+  ### Calculate the estimation error epsilon(t)
+  error[iter] <- sum(abs(1 - logdensity[-empty_index]/logdensity_truth[-empty_index]))/(N - 1)
   if(iter%%1000 == 0) print(c(iter, logf, error[iter]))
 }
 end_time <- Sys.time()
 
 ### save data
-data_save  <- list(start_time = start_time, end_time = end_time, equilibration = equilibration)
-filename <- paste("/n/home09/cdai/AccWL/revision/result/AdamWL/L_", L, "_replicate_", replicate, ".RData", sep = "")
-save(data_save, file = filename)
+data_save  <- list(logdensity = logdensity, error = error, computation_time = end_time - start_time)
 
 
 
