@@ -43,7 +43,7 @@ List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector &
 
   for (double iter = 0; iter < size * size; iter++){
     // Choose a random site for flipping
-	  site = (int)(size * size * (runif(1))(0));
+    site = (int)(size * size * (runif(1))(0));
     si = site / size;
     sj = site % size;
     
