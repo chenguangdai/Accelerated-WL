@@ -1,14 +1,14 @@
-##### Wang-Landau algorithm for 2D Ising model
+##### The Wang-Landau algorithm for 2D ten-state Potts model
 rm(list = ls())
 library(LaplacesDemon)
 library(Rcpp)
 ### The C code contains two functions
 ### 1. Calculate the energy of a lattice
-### 2. One-step of MCMC sweep, which cantains L^2 steps
-replicate <- as.integer(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-set.seed(replicate)
-sourceCpp("/n/home09/cdai/AccWL/revision/code/Potts/WL.cpp")
-load("/n/home09/cdai/AccWL/revision/Potts_error/truth/L_80_truth.RData")
+### 2. One-step of MC sweep, which cantains LxL MC trial moves
+sourceCpp("WL.cpp")
+
+### Load the true logdensity for L = 80
+load("logdensityL80.RData")
 logdensity_truth <- data_save$logdensity
 
 ### Algorithmic settings
@@ -19,25 +19,22 @@ N <- L^2
 logf <- 0.05
 min_logf <- 10^(-8)
 energy_range <- seq(from = 0, to = L^2*2, by = 1)
-empty_index <- c(2, 3, 4, 6)
+empty_index <- c(2, 3, 4, 6)  ## non-existent energy level indexes
 
 ### Initialization
-### Initialize the logdensity. The second and the last to second are empty.
-logdensity <- rep(1, L^2*2 + 1)  
-logdensity[empty_index] <- 0
+### Initialize the logdensity.
+logdensity <- rep(0, L^2*2 + 1)  
 ### Initialize the ground state. All spins are 1.
 lattice <- matrix(1, nrow = L, ncol = L)
-### Initialize the energy level, index by the C language.
+### Initialize the energy level.
 energy_level <- 0
 ### Initialize the histogram.
 Hist <- rep(0, L^2*2 + 1)
 Hist_index <- 0
-### Keep track of error
+### Keep track of the estimation error epsilon(t)
 error <- rep(0, num_mc)
-### Keep track of the free energy
-free_energy <- rep(0, num_mc)
 
-### Wang-Landau algorithm
+### The Wang-Landau algorithm
 start_time <- Sys.time()
 for(iter in 1:num_mc){
   ### Metropolis move
@@ -47,7 +44,7 @@ for(iter in 1:num_mc){
   energy_level <- MC_result$energy_level
   Hist <- MC_result$Hist
   
-  ### Check the flatness criterion
+  ### Check the flatness criterion (1/t update)
   if(iter%%1000 == 0 && Hist_index == 0){
     Hist_min <- min(Hist[-empty_index])
     if(Hist_min > 0){
@@ -64,13 +61,12 @@ for(iter in 1:num_mc){
   logconst <- log(sum(exp(logdensity[-empty_index] - maxlw))) + maxlw
   logdensity[-empty_index] <- logdensity[-empty_index] - logconst
   
-  ### Calculate the error
+  ### Calculate the estimation error epsilon(t)
   error[iter] <- sum(abs(1 - logdensity[-empty_index]/logdensity_truth[-empty_index]))/(N - 1)
   if(iter%%1000 == 0) print(c(iter, logf, error[iter]))
 }
 end_time <- Sys.time()
-running_time <- end_time - start_time
 
-data_save <- list(error = error, running_time = running_time)
-save(data_save, file = paste("/n/home09/cdai/AccWL/revision/Potts_error/result/WL0.05/replicate_", replicate, ".RData", sep = ""))
+### save data
+data_save  <- list(logdensity = logdensity, error = error, computation_time = end_time - start_time)
 
