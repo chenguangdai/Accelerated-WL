@@ -23,7 +23,11 @@ beta <- 0.9
 
 ### Initialization
 ### Initialize the logdensity. 
-logdensity <- rep(0, L^2*2 + 1)  
+logdensity <- rep(0, L^2*2 + 1
+### Initialize the ground state. All spins are 1.
+lattice <- matrix(1, nrow = L, ncol = L)
+### Initialize the energy level.
+energy_level <- 0)  
 ### Initialize the histogram.
 Hist <- rep(0, L^2*2 + 1)
 Hist_index <- 0
@@ -31,8 +35,6 @@ Hist_index <- 0
 error <- rep(0, num_mc)
 ### Initialize the momentum.
 momentum <- rep(0, L^2*2 + 1)
-lattice <- matrix(1, nrow = L, ncol = L)
-energy_level <- 0
 ### Initialize the last_update_index
 last_update_index <- rep(0, L^2*2 + 1)
 
