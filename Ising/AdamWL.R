@@ -1,1 +1,84 @@
+##### The accelerated Wang-Landau algorithm for the 2D Ising model
+rm(list = ls())
+library(LaplacesDemon)
+library(Rcpp)
+### The C code contains two functions
+### 1. Calculate the energy of a lattice
+### 2. One-step of MC sweep, which cantains LxL MC trial moves
+sourceCpp("AdamWL.cpp")
+
+### Load the true logdensity for L = 80
+load("logdensityL80.RData")
+logdensity_truth <- logdensity
+
+### Algorithmic settings
+num_mc <- 200000
+L <- 80
+flatness_criterion <- 0.8
+N <- L^2
+logf <- 0.05
+energy_range <- seq(from = -2*L^2, to = 2*L^2, by = 4)
+empty_index <- c(2, L^2)  ### non-existent energy level indexes
+beta <- 0.9
+
+### Initialization
+### Initialize the lattice
+lattice <- matrix(2*rbern(N, prob = 0.5) - 1, nrow = L, ncol = L)
+energy_level <- (get_energy(lattice) + 2*L^2)/4
+### Initialize the logdensity. 
+logdensity <- rep(0, L^2 + 1)  
+### Initialize the histogram.
+Hist <- rep(0, L^2 + 1)
+Hist_index <- 0
+### Keep track of the estimation error epsilon(t) defined in Equation (24)
+error <- rep(0, num_mc)
+### Initialize the momentum
+momentum <- rep(0, L^2 + 1)
+### Initialize the Last update index
+last_update_index <- rep(0, L^2 + 1)
+
+### The accelerated Wang-Landau algorithm
+start_time <- Sys.time()
+for(iter in 1:num_mc){
+  ### Metropolis move
+  MC_result <- MC_sweep(lattice, logdensity, Hist, energy_level, logf, beta, last_update_index, momentum, iter)
+  lattice <- MC_result$lattice
+  logdensity <- MC_result$logdensity
+  energy_level <- MC_result$energy_level
+  Hist <- MC_result$Hist
+  momentum <- MC_result$momentum
+  last_update_index <- MC_result$last_update_index
+  
+  ### Check the flatness criterion
+  if(iter%%1000 == 0 && Hist_index == 0){
+    Hist_min <- min(Hist[-empty_index])
+    if(Hist_min > 0){
+      ### Adjust the modification factor and reset the histogram
+      logf <- logf / 2
+      Hist <- rep(0, L^2 + 1)
+      start_time <- c(start_time, Sys.time())
+      equilibration <- c(equilibration, iter)
+    }
+  }
+  
+  if(iter >= 1000 & logf < 1/iter){Hist_index <- 1}
+  if(Hist_index == 1){logf <- 1/iter}
+  
+  ### Normalize the density
+  maxlw <- max(logdensity[-empty_index])
+  logconst <- log(sum(exp(logdensity[-empty_index] - maxlw))) + maxlw
+  logdensity[-empty_index] <- logdensity[-empty_index] - logconst
+  
+  ### Calculate the error
+  # error[iter] <- sum(abs(1 - logdensity[-empty_index]/logdensity_truth[-empty_index]))/(N - 1)
+  if(iter%%1000 == 0) print(c(iter, logf, error[iter]))
+}
+end_time <- Sys.time()
+
+### save data
+data_save  <- list(start_time = start_time, end_time = end_time, equilibration = equilibration)
+filename <- paste("/n/home09/cdai/AccWL/revision/result/AdamWL/L_", L, "_replicate_", replicate, ".RData", sep = "")
+save(data_save, file = filename)
+
+
 
