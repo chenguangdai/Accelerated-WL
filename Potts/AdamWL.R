@@ -33,7 +33,7 @@ error <- rep(0, num_mc)
 momentum <- rep(0, L^2*2 + 1)
 lattice <- matrix(1, nrow = L, ncol = L)
 energy_level <- 0
-### Last update index
+### Initialize the last_update_index
 last_update_index <- rep(0, L^2*2 + 1)
 
 
