@@ -21,8 +21,8 @@ int get_energy(const IntegerMatrix & state){
 }
 
 // [[Rcpp::export]]
-List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector & Hist, int energy_level, double learning_rate, double beta, NumericVector & last_update, NumericVector & momentum, int sweep_index){
-  // last_update: the last time, in terms of MC trial moves, that each evergy level is updated.
+List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector & Hist, int energy_level, double learning_rate, double beta, NumericVector & last_update_index, NumericVector & momentum, int sweep_index){
+  // last_update_index: the last time step, in terms of MC trial moves, that each evergy level is updated.
   // sweep_index: the number of MC sweeps that the algorithm has gone through. Each MC sweep contains LxL MC trial moves.
   // num_trial_moves: the number of MC trial moves that the algorithm has gone through.
   int size = state.rows();
@@ -52,7 +52,7 @@ List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector &
     proposed_energy_level = current_energy_level + state(si, sj) * neighborsum / 2;
 	  
     // Calculate the accumulated momentum
-    interval = num_trial_moves + iter - last_update(proposed_energy_level);
+    interval = num_trial_moves + iter - last_update_index(proposed_energy_level);
     logdensity(proposed_energy_level) += learning_rate * sqrt(-momentum(proposed_energy_level)) * (1 - pow(sqrt(beta), interval)) * accum_beta;
     momentum(proposed_energy_level) *= pow(beta, interval);
     last_update(proposed_energy_level) = num_trial_moves + iter;
@@ -67,14 +67,14 @@ List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector &
     // Update momentum and logdensity
     momentum(current_energy_level) = momentum(current_energy_level) * beta - (1.0 - beta);
     logdensity(current_energy_level) += sqrt(-momentum(current_energy_level)) * learning_rate;
-    last_update(current_energy_level) = num_trial_moves + iter + 1;
+    last_update_index(current_energy_level) = num_trial_moves + iter + 1;
  
     // Update histogram
     Hist(current_energy_level)++;
   }
   // return
   return List::create(Named("energy_level") = current_energy_level, Named("logdensity") = logdensity, 
-                      Named("lattice") = state, Named("Hist") = Hist, Named("last_update") = last_update,
+                      Named("lattice") = state, Named("Hist") = Hist, Named("last_update_index") = last_update_index,
                       Named("momentum") = momentum);
 }
 
