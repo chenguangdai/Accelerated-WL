@@ -67,7 +67,7 @@ List MC_sweep(IntegerMatrix & state, NumericVector & logdensity, NumericVector &
     // Calculate the acceptance probability
     log_acceptance_prob = logdensity(current_energy_level) - logdensity(proposed_energy_level);
     if (log(runif(1)(0)) < log_acceptance_prob){
-    	// Accept the probosed state
+    	// Accept the proposed state
     	state(si, sj) = propose_spin;
     	current_energy_level = proposed_energy_level;
     }
