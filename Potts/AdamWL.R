@@ -23,7 +23,7 @@ beta <- 0.9
 
 ### Initialization
 ### Initialize the logdensity. 
-logdensity <- rep(0, L^2*2 + 1
+logdensity <- rep(0, L^2*2 + 1)
 ### Initialize the ground state. All spins are 1.
 lattice <- matrix(1, nrow = L, ncol = L)
 ### Initialize the energy level.
