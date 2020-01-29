@@ -38,7 +38,6 @@ momentum <- rep(0, L^2*2 + 1)
 ### Initialize the last_update_index
 last_update_index <- rep(0, L^2*2 + 1)
 
-
 ### The accelerated Wang-Landau algorithm
 start_time <- Sys.time()
 for(iter in 1:num_mc){
